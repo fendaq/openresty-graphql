@@ -10,6 +10,24 @@
 --
 local _M = {version = "0.0.1"}
 
+-- A representation of source input to GraphQL.
+local function Source(configures)
+  configures = configures or {}
+
+  if type(configures) == "string" then
+    return {body = configures, name = "GraphQL request", locationOffset = {line = 1, column = 1}}
+  end
+
+  configures.body = configures.body or ""
+  configures.name = configures.name or "GraphQL request"
+  configures.locationOffset = configures.locationOffset or {line = 1, column = 1}
+
+  assert(configures.locationOffset.line > 0, "line in locationOffset is 1-indexed and must be positive")
+  assert(configures.locationOffset.column > 0, "column in locationOffset is 1-indexed and must be positive")
+
+  return configures
+end
+
 -- The set of allowed kind values for AST nodes.
 local KIND = {
   NAME = "Name",
@@ -80,18 +98,6 @@ local DIRECTIVE_LOCATION = {
   INPUT_FIELD_DEFINITION = "INPUT_FIELD_DEFINITION"
 }
 
--- A representation of source input to GraphQL.
-local function Source(configures)
-  configures.body = configures.body or ""
-  configures.name = configures.name or "GraphQL request"
-  configures.locationOffset = configures.locationOffset or {line = 1, column = 1}
-
-  assert(configures.locationOffset.line > 0, "line in locationOffset is 1-indexed and must be positive")
-  assert(configures.locationOffset.column > 0, "column in locationOffset is 1-indexed and must be positive")
-
-  return configures
-end
-
 -- Determine the type of an AST node.
 local function isExecutableDefinitionNode(node)
   return node.kind == KIND.OPERATION_DEFINITION or node.kind == KIND.FRAGMENT_DEFINITION
@@ -140,6 +146,10 @@ end
 
 local function isDefinitionNode(node)
   return isExecutableDefinitionNode(node) or isTypeSystemDefinitionNode(node) or isTypeExtensionNode(node)
+end
+
+function _M.test(configures)
+  return Source(configures)
 end
 
 return _M
