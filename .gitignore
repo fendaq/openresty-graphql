@@ -43,4 +43,3 @@ luac.out
 temp
 .DS_Store
 openresty-graphql-*
-graphql-js-master
